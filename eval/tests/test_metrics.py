@@ -6,7 +6,9 @@ import pytest
 
 from eval.metrics.base import EvalMode, MetricResult
 from eval.metrics.cost import CostMetric
+from eval.metrics.faithfulness import FaithfulnessMetric
 from eval.metrics.latency import LatencyMetric
+from eval.metrics.relevance import RelevanceMetric
 
 
 class TestMetricResult:
@@ -108,3 +110,87 @@ class TestCostMetric:
                 output_tokens=50,
                 eval_mode=EvalMode.VOICE_STT,
             )
+
+
+class TestFaithfulnessMetric:
+    """Tests for FaithfulnessMetric."""
+
+    def test_perfect_overlap(self):
+        metric = FaithfulnessMetric()
+        result = metric.compute(
+            answer="the cat sat on the mat",
+            context="the cat sat on the mat",
+        )
+        assert result.score == pytest.approx(1.0)
+        assert result.details["unsupported_claims_count"] == 0
+
+    def test_no_overlap(self):
+        metric = FaithfulnessMetric()
+        result = metric.compute(
+            answer="hello world",
+            context="foo bar baz",
+        )
+        assert result.score == pytest.approx(0.0)
+
+    def test_partial_overlap(self):
+        metric = FaithfulnessMetric()
+        result = metric.compute(
+            answer="the cat is happy",
+            context="the cat sat on the mat",
+        )
+        assert 0.0 < result.score < 1.0
+        assert result.details["overlap_count"] > 0
+        assert result.details["unsupported_claims_count"] > 0
+
+    def test_empty_answer(self):
+        metric = FaithfulnessMetric()
+        result = metric.compute(
+            answer="",
+            context="the cat sat on the mat",
+        )
+        assert result.score == pytest.approx(0.0)
+
+    def test_empty_context(self):
+        metric = FaithfulnessMetric()
+        result = metric.compute(
+            answer="the cat sat on the mat",
+            context="",
+        )
+        assert result.score == pytest.approx(0.0)
+
+
+class TestRelevanceMetric:
+    """Tests for RelevanceMetric."""
+
+    def test_identical_texts(self):
+        metric = RelevanceMetric()
+        result = metric.compute(
+            query="machine learning algorithms",
+            context="machine learning algorithms",
+        )
+        assert result.score == pytest.approx(1.0)
+
+    def test_no_overlap(self):
+        metric = RelevanceMetric()
+        result = metric.compute(
+            query="hello world",
+            context="foo bar baz",
+        )
+        assert result.score == pytest.approx(0.0)
+
+    def test_partial_relevance(self):
+        metric = RelevanceMetric()
+        result = metric.compute(
+            query="machine learning",
+            context="machine learning is a subset of artificial intelligence",
+        )
+        assert 0.0 < result.score < 1.0
+        assert len(result.details["shared_terms"]) > 0
+
+    def test_empty_query(self):
+        metric = RelevanceMetric()
+        result = metric.compute(
+            query="",
+            context="some context text",
+        )
+        assert result.score == pytest.approx(0.0)
