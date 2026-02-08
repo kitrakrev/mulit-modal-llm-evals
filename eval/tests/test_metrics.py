@@ -8,6 +8,7 @@ from eval.metrics.base import EvalMode, MetricResult
 from eval.metrics.cost import CostMetric
 from eval.metrics.faithfulness import FaithfulnessMetric
 from eval.metrics.latency import LatencyMetric
+from eval.metrics.hallucination import HallucinationMetric
 from eval.metrics.relevance import RelevanceMetric
 
 
@@ -194,3 +195,48 @@ class TestRelevanceMetric:
             context="some context text",
         )
         assert result.score == pytest.approx(0.0)
+
+
+class TestHallucinationMetric:
+    """Tests for HallucinationMetric."""
+
+    def test_fully_supported(self):
+        metric = HallucinationMetric()
+        result = metric.compute(
+            answer="The cat sat on the mat. The mat was red.",
+            context="The cat sat on the mat. The mat was red and soft.",
+        )
+        assert result.score == pytest.approx(1.0)
+        assert result.details["hallucinated_count"] == 0
+
+    def test_fully_hallucinated(self):
+        metric = HallucinationMetric()
+        result = metric.compute(
+            answer="Elephants can fly through space. They breathe fire.",
+            context="The cat sat on the mat.",
+        )
+        assert result.score < 1.0
+        assert result.details["hallucinated_count"] > 0
+
+    def test_partial_hallucination(self):
+        metric = HallucinationMetric()
+        result = metric.compute(
+            answer="The cat sat on the mat. Elephants can fly through space.",
+            context="The cat sat on the mat and was happy.",
+        )
+        assert 0.0 < result.score < 1.0
+        assert result.details["supported_count"] > 0
+        assert result.details["hallucinated_count"] > 0
+
+    def test_empty_answer(self):
+        metric = HallucinationMetric()
+        result = metric.compute(
+            answer="",
+            context="The cat sat on the mat.",
+        )
+        assert result.score == pytest.approx(1.0)
+        assert result.details["total_sentences"] == 0
+
+    def test_custom_threshold(self):
+        metric = HallucinationMetric(support_threshold=0.5)
+        assert metric.support_threshold == 0.5

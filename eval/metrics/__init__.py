@@ -3,6 +3,7 @@
 from eval.metrics.base import BaseMetric, EvalMode, MetricResult
 from eval.metrics.cost import CostMetric
 from eval.metrics.faithfulness import FaithfulnessMetric
+from eval.metrics.hallucination import HallucinationMetric
 from eval.metrics.latency import LatencyMetric
 from eval.metrics.relevance import RelevanceMetric
 
@@ -11,6 +12,7 @@ __all__ = [
     "CostMetric",
     "EvalMode",
     "FaithfulnessMetric",
+    "HallucinationMetric",
     "LatencyMetric",
     "MetricResult",
     "RelevanceMetric",
