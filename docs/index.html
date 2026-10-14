@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLM Evaluation Framework</title><meta name="description" content="Multi-model evaluation framework with RAG, voice, tracing, regression detection, and OpenTelemetry observability.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f6f2;--panel:#fff;--ink:#1d1d1f;--muted:#6b6b70;--line:#e3e1da;--accent:#00684a;--side:#0f1f1a;--sideink:#d7e7df}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121413;--panel:#1b1e1c;--ink:#ecece8;--muted:#9a9c98;--line:#2c302d;--accent:#4fc08d;--side:#0a1410}}
+*{box-sizing:border-box}body{margin:0;font:15px/1.55 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+header{background:var(--side);color:var(--sideink);padding:40px 16px 32px}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+header .wrap{padding:0}
+header h1{color:#fff;margin:0 0 6px;font-size:32px;letter-spacing:-.01em}
+header p{margin:0 0 16px;opacity:.85;font-size:16px}
+.btns a{display:inline-block;margin:0 8px 8px 0;padding:7px 14px;border-radius:8px;text-decoration:none;font-size:14px;border:1px solid #2f5a49;color:#fff}
+.btns a.pri{background:#00684a;border-color:#00684a}
+main{padding:24px 16px 40px}
+h2{font-size:19px;margin:28px 0 10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:14px}
+ul{margin:6px 0;padding-left:20px}li{margin:4px 0}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.flow span{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:7px;padding:6px 10px;font-size:13px}
+.flow i{color:var(--muted);font-style:normal}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600}.tw{overflow-x:auto}
+.pill{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12.5px;border:1px solid var(--line);margin:0 6px 6px 0;background:var(--panel)}
+.muted{color:var(--muted)}code{font-family:ui-monospace,Menlo,monospace;font-size:13px}
+a{color:var(--accent)}footer{border-top:1px solid var(--line);padding:18px 16px;color:var(--muted);font-size:13px}
+@media (max-width:600px){header h1{font-size:26px}}
+</style></head><body>
+<header><div class="wrap"><h1>LLM Evaluation Framework</h1><p>Multi-model evaluation framework with RAG, voice, tracing, regression detection, and OpenTelemetry observability.</p>
+<div class="btns"><a class="pri" href="https://github.com/kitrakrev/mulit-modal-llm-evals">View on GitHub</a><a href="https://kitrakrev.github.io/">&larr; kitrakrev.github.io</a></div></div></header>
+<main class="wrap">
+<h2>What it does</h2><div class="card"><p>Runs automated evaluations across multiple LLMs using text, RAG and voice inputs, scoring them on faithfulness, relevance and hallucination (plus latency and cost), to pick the best model for a job.</p><ul><li>Five modes: <code>text</code>, <code>rag</code>, <code>voice-stt</code>, <code>voice-tts</code>, <code>voice-e2e</code></li><li>Providers: OpenAI, Anthropic, MLX local, and custom OpenAI-compatible endpoints via a YAML model registry</li><li>Multi-model comparison/ranking and baseline regression detection</li><li>FastAPI endpoints: <code>POST /api/evals/run</code>, <code>GET /api/evals/compare</code>, <code>GET /api/regressions</code>, <code>GET /api/models</code></li></ul></div>
+<h2>How it works</h2><div class="card"><div class="flow"><span>Dataset sample</span> <i>&rarr;</i> <span>Retrieve context (RAG)</span> <i>&rarr;</i> <span>Model provider</span> <i>&rarr;</i> <span>Metric suite</span> <i>&rarr;</i> <span>OTel trace span</span> <i>&rarr;</i> <span>PostgreSQL</span></div><ul><li><b>EvalRunner</b> orchestrates runs; for each sample it optionally retrieves context, generates a response, and computes every metric.</li><li><b>Text metrics:</b> F1 faithfulness, token-overlap relevance, sentence-level NLI hallucination, latency, cost. <b>Voice metrics:</b> WER/CER, MOS/naturalness, voice latency.</li><li><b>RAG pipeline:</b> chunker → embeddings → cosine-similarity retriever → context builder, backed by ChromaDB.</li><li><b>Tracing:</b> <code>@trace_eval</code> OTel spans exported via Kafka to a log pipeline; results stored in PostgreSQL.</li></ul></div>
+
+<h2>Tech stack</h2><div><span class="pill">Python 3.11+</span><span class="pill">FastAPI</span><span class="pill">MLX</span><span class="pill">ChromaDB</span><span class="pill">PostgreSQL</span><span class="pill">OpenTelemetry</span><span class="pill">Kafka</span><span class="pill">Docker Compose</span><span class="pill">Whisper</span></div>
+
+</main>
+<footer><div class="wrap">Source: <a href="https://github.com/kitrakrev/mulit-modal-llm-evals">github.com/kitrakrev/mulit-modal-llm-evals</a> &middot; <a href="https://kitrakrev.github.io/">kitrakrev.github.io</a></div></footer>
+</body></html>
